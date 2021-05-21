@@ -1,18 +1,22 @@
 import React, { Component } from "react";
 import { firestore } from "../config/firebase-config";
+
 class CreateGuideModal extends Component {
   state = {
     title: "",
     content: "",
+    loading: false,
   };
   onChangeHandler = (e) => {
     this.setState({ [e.target.name]: e.target.value });
   };
   onCreateGuide = (e) => {
     e.preventDefault();
+
     firestore
       .collection("guides")
       .add({ title: this.state.title, content: this.state.content });
+
     this.props.onFetchData();
   };
   render() {

@@ -1,10 +1,11 @@
 import React, { Component } from "react";
-import { auth, firestore } from "../config/firebase-config";
+import { auth } from "../config/firebase-config";
 class SignUpModal extends Component {
   state = {
     email: "",
     password: "",
     bio: "",
+    phoneNo: "",
   };
 
   onChangeHandler(e) {
@@ -15,15 +16,32 @@ class SignUpModal extends Component {
     auth
       .createUserWithEmailAndPassword(this.state.email, this.state.password)
       .then((res) => {
-        firestore
-          .collection("users")
-          .doc(res.user.uid)
-          .set({ bio: this.state.bio });
+        this.verifyEmail(res.user.uid);
+
+        // firestore
+        //   .collection("users")
+        //   .doc(res.user.uid)
+        //   .set({ bio: this.state.bio, phoneNo: this.state.phoneNo });
         // const modal = document.querySelector("#modal-signup");
         // console.log(modal);
         // M.Modal.getInstance(modal).close();
       });
   }
+  verifyEmail = (uid) => {
+    auth.currentUser.sendEmailVerification().then((res) => {
+      console.log(res);
+      this.sendData(uid);
+    });
+  };
+  sendData = (uid) => {
+    const obj = {
+      bio: this.state.bio,
+      phoneNo: this.state.phoneNo,
+      uid: uid,
+    };
+    console.log(obj);
+    this.props.parentCallback(obj);
+  };
   render() {
     return (
       <div>
@@ -64,6 +82,17 @@ class SignUpModal extends Component {
                   onChange={(e) => this.onChangeHandler(e)}
                 />
                 <label htmlFor="bio-password">Bio</label>
+              </div>
+              <div className="input-field">
+                <input
+                  type="number"
+                  id="phoneNo-password"
+                  required
+                  name="phoneNo"
+                  value={this.state.phoneNo}
+                  onChange={(e) => this.onChangeHandler(e)}
+                />
+                <label htmlFor="phoneNo-password">Phone Nmber</label>
               </div>
               <button type="submit" className="btn yellow darken-2 z-depth-0">
                 Sign up
